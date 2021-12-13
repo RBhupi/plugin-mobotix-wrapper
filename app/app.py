@@ -3,6 +3,7 @@ import sys
 import time
 import os
 import subprocess
+import ffmpeg
 
 
 from waggle.plugin import Plugin
