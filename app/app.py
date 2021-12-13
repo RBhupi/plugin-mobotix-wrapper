@@ -1,13 +1,24 @@
 import argparse
 import sys
 import time
+import os
+import subprocess
+
 
 from waggle.plugin import Plugin
 
 
 def main(args):
-    print(args)
-
+    
+    #create output directory if does not exist.
+    if not os.path.exists(args.o):
+        os.makedirs(args.o)
+    
+    print("running subprocess")
+    # here we should run the c++ code
+    subprocess.run(["/eventstreamclient/samples/thermal-raw/build/thermal-raw", 
+                    args.ip])
+    print("complete subprocess")
 
 
 if __name__ == "__main__":
