@@ -18,27 +18,7 @@ import re
 from waggle.plugin import Plugin
 
 
-def main(args):
-    
-    #create output directory if does not exist.
-    if not os.path.exists(args.o):
-        os.makedirs(args.o)
-    os.chdir(args.o)
-    
-    print("running subprocess")
-    # here we should run the c++ code
-    subprocess.run(["/eventstreamclient/samples/thermal-raw/build/thermal-raw", 
-                    args.ip])
-    print("complete subprocess")
-    
-    
-    
-    # At this point should we only run the sampler only once or for continuouse
-    # time period of say 5-30 min? We need to decide this based on the data 
-    
-    
-
-
+def convertRGBtoJPG():
     rgb_files = glob.glob("*.rgb")
     for f_rgb in rgb_files:
         # make JPEG file name
@@ -49,8 +29,22 @@ def main(args):
         image_dims = match_str.group()
         subprocess.run(['ffmpeg', '-f', 'rawvideo', '-pixel_format', 'bgra', 
                         '-video_size', image_dims, '-i', f_rgb, f_jpg])
-        
-        #ffmpeg -f rawvideo -pixel_format bgra -video_size image_dims -i f_rgb f_jpg
+
+def main(args):
+    
+    #create output directory if does not exist and change WD.
+    if not os.path.exists(args.o):
+        os.makedirs(args.o)
+    os.chdir(args.o)
+    
+    # here we should run the c++ code
+    subprocess.run(["/eventstreamclient/samples/thermal-raw/build/thermal-raw", 
+                    args.ip])
+    
+    # At this point should we only run the sampler only once or for continuouse
+    # time period of say 5-30 min? We need to decide this based on the data 
+    
+    convertRGBtoJPG()
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='''
