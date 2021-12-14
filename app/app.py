@@ -8,7 +8,6 @@ Created on Mon Dec 13 11:05:11 2021
 
 import argparse
 import sys
-import time
 import glob
 import os
 import subprocess
@@ -29,23 +28,54 @@ def convertRGBtoJPG():
         image_dims = match_str.group()
         subprocess.run(['ffmpeg', '-f', 'rawvideo', '-pixel_format', 'bgra', 
                         '-video_size', image_dims, '-i', f_rgb, f_jpg])
+        
+        print("Removing "+f_rgb)
+        os.remove(f_rgb)
+        
+        
+def renameFiles():
+    files = sum([ glob.glob(f) for f in ("*.raw","*.jpg","*.csv") ], [])
+    timestamp = []
+    new_filenames = []
+    for f in files:
+        timestamp_str, filename = f.split("_", 1)
+        
+        timestamp.append(int(timestamp_str))
+        new_filenames.append(filename)
+        
+        print("Renaming "+f)
+        os.rename(f, filename)
+        
+    return new_filenames, timestamp
+        
+        
+
+
 
 def main(args):
-    
-    #create output directory if does not exist and change WD.
+        
+    #create output directory if it does not exist and change WD.
     if not os.path.exists(args.o):
         os.makedirs(args.o)
+        
     os.chdir(args.o)
     
-    # here we should run the c++ code
-    subprocess.run(["/eventstreamclient/samples/thermal-raw/build/thermal-raw", 
-                    args.ip])
     
-    # At this point should we only run the sampler only once or for continuouse
-    # time period of say 5-30 min? We need to decide this based on the data 
-    
-    convertRGBtoJPG()
+    while True:
+        # Run the Mobotix sampler
+        subprocess.run(["/eventstreamclient/samples/thermal-raw/build/thermal-raw", 
+                            args.ip]) #, args.id, args.pw])
 
+        convertRGBtoJPG()
+        filenames, timestamp = renameFiles()
+
+        exit()
+
+    
+
+    
+
+    
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description='''
                                      This program runs Mobotix sampler for raw 
@@ -61,7 +91,7 @@ if __name__ == "__main__":
     parser.add_argument('--o', type=str, 
                         help='Output directory', default="./data/")
     parser.add_argument('--i', type=int,
-                        help='Interval [sec]', default=1)
+                        help='Interval [sec] (Unused)', default=1)
     
     args = parser.parse_args()
     main(args)
