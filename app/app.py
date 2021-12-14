@@ -49,7 +49,11 @@ def renameFiles():
     return new_filenames, timestamp
         
         
-
+def cleanup():
+    all_files = glob.glob("*")
+    for f in all_files:
+        print("Removing "+f)
+        os.remove(f)
 
 
 def main(args):
@@ -68,6 +72,14 @@ def main(args):
 
         convertRGBtoJPG()
         filenames, timestamp = renameFiles()
+        
+        for index, filename in enumerate(filenames):
+            print(filename)
+            print(timestamp[index])
+            #plugin.upload_file(filename, timestamp=timestamp[index])
+
+
+        cleanup()
 
         exit()
 
